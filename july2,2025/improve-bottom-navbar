@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 Pillars of Islam App</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the Inter font and general body look */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ensure html, body, and the root div take full height and allow scrolling */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            background-color: #f3f4f6; /* Light gray background for the app */
+        }
+        /* Padding for main content to account for fixed header and footer */
+        main {
+            padding-top: 64px; /* Height of header (p-4 + default height) */
+            padding-bottom: 64px; /* Height of footer (p-2 + default height) */
+            flex-grow: 1; /* Allows main content to take available space */
+            overflow-y: auto; /* Enables vertical scrolling for content */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header Section -->
+        <header class="fixed top-0 left-0 w-full bg-[#1877F2] text-white p-4 flex items-center justify-between shadow-md z-10">
+            <div class="flex items-center space-x-2">
+                <!-- App title -->
+                <span class="font-bold text-xl rounded-md px-2 py-1">Pillars of Islam</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- Search Icon SVG (retained for general app feel) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-search">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <!-- User Icon SVG (retained for general app feel) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-user">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Content will be injected here by JavaScript -->
+        </main>
+
+        <!-- Footer Section (Navigation for 5 Pillars) -->
+        <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around items-center p-2 shadow-lg z-10">
+            <button id="kalma-tab" class="flex flex-col items-center p-2 rounded-md transition-colors duration-200 text-[#1877F2] font-semibold">
+                <!-- Kalma (Shahada) Icon: Scroll/Document -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-file-text">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                    <path d="M10 9H8"/>
+                    <path d="M16 13H8"/>
+                    <path d="M16 17H8"/>
+                </svg>
+                <span class="text-xs mt-1">Kalma</span>
+            </button>
+            <button id="namaz-tab" class="flex flex-col items-center p-2 rounded-md transition-colors duration-200 text-gray-600 hover:bg-gray-100">
+                <!-- Namaz (Salat) Icon: Praying Figure -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-person-standing">
+                    <circle cx="12" cy="5" r="1"/>
+                    <path d="M9 20v-5h3v-2a3 3 0 0 1-3-3V7a1 1 0 0 1 2 0v2h.5l1.5 4.5"/>
+                    <path d="M16 17v-2h-3v-2a3 3 0 0 1 3-3V7a1 1 0 0 0-2 0v2h-.5l-1.5 4.5"/>
+                </svg>
+                <span class="text-xs mt-1">Namaz</span>
+            </button>
+            <button id="roza-tab" class="flex flex-col items-center p-2 rounded-md transition-colors duration-200 text-gray-600 hover:bg-gray-100">
+                <!-- Roza (Sawm) Icon: Crescent Moon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-moon">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                </svg>
+                <span class="text-xs mt-1">Roza</span>
+            </button>
+            <button id="zakat-tab" class="flex flex-col items-center p-2 rounded-md transition-colors duration-200 text-gray-600 hover:bg-gray-100">
+                <!-- Zakat Icon: Hand with Coin -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-hand-coins">
+                    <path d="M11 11V3H6a2 2 0 0 0-2 2v4c0 2.2 1.8 4 4 4h2Z"/>
+                    <path d="M17 3H12v8h5c2.2 0 4-1.8 4-4V5a2 2 0 0 0-2-2Z"/>
+                    <path d="M12 22H4a2 2 0 0 1-2-2v-4c0-2.2 1.8-4 4-4h8"/>
+                    <path d="M20 18H12v4h8a2 2 0 0 0 2-2v-2c0-2.2-1.8-4-4-4Z"/>
+                </svg>
+                <span class="text-xs mt-1">Zakat</span>
+            </button>
+            <button id="hajj-tab" class="flex flex-col items-center p-2 rounded-md transition-colors duration-200 text-gray-600 hover:bg-gray-100">
+                <!-- Hajj Icon: Simple Cube (Kaaba representation) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-box">
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 22V12"/>
+                </svg>
+                <span class="text-xs mt-1">Hajj</span>
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        // Get references to the main content area and all tab buttons
+        const mainContent = document.getElementById('main-content');
+        const kalmaTabBtn = document.getElementById('kalma-tab');
+        const namazTabBtn = document.getElementById('namaz-tab');
+        const rozaTabBtn = document.getElementById('roza-tab');
+        const zakatTabBtn = document.getElementById('zakat-tab');
+        const hajjTabBtn = document.getElementById('hajj-tab');
+
+        // Function to render content for the Kalma tab
+        function renderKalmaContent() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">1. Kalma (Shahada) - The Declaration of Faith</h2>
+                    <p class="text-gray-700">The Shahada is the Muslim declaration of belief in the oneness of God (Allah) and acceptance of Muhammad as His prophet. It is recited in Arabic: "Lā ilāha illā Allāh, Muḥammadur rasūl Allāh" (There is no god but Allah, Muhammad is the messenger of Allah).</p>
+                    <img src="https://placehold.co/600x300/4CAF50/FFFFFF?text=Shahada" alt="Shahada Calligraphy" class="w-full rounded-lg shadow-md">
+                    <p class="text-gray-600 text-sm">This pillar is the foundation of Islam, affirming the absolute monotheism and the prophethood of Muhammad (PBUH).</p>
+                </div>
+            `;
+        }
+
+        // Function to render content for the Namaz tab
+        function renderNamazContent() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">2. Namaz (Salat) - Prayer</h2>
+                    <p class="text-gray-700">Muslims are required to pray five times a day facing the Kaaba in Mecca: at dawn (Fajr), noon (Dhuhr), mid-afternoon (Asr), sunset (Maghrib), and night (Isha). Prayer is a direct link between the worshipper and God.</p>
+                    <img src="https://placehold.co/600x300/2196F3/FFFFFF?text=Prayer" alt="People Praying" class="w-full rounded-lg shadow-md">
+                    <p class="text-gray-600 text-sm">Each prayer consists of a series of physical movements and recitations from the Quran.</p>
+                </div>
+            `;
+        }
+
+        // Function to render content for the Roza tab
+        function renderRozaContent() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">3. Roza (Sawm) - Fasting</h2>
+                    <p class="text-gray-700">Fasting during the month of Ramadan is obligatory for all adult Muslims who are able. It involves abstaining from food, drink, and other physical needs from dawn until sunset. It is a time for spiritual reflection, self-improvement, and increased devotion.</p>
+                    <img src="https://placehold.co/600x300/FFC107/000000?text=Ramadan" alt="Ramadan Crescent" class="w-full rounded-lg shadow-md">
+                    <p class="text-gray-600 text-sm">Fasting teaches patience, discipline, and empathy for the less fortunate.</p>
+                </div>
+            `;
+        }
+
+        // Function to render content for the Zakat tab
+        function renderZakatContent() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">4. Zakat - Charity</h2>
+                    <p class="text-gray-700">Zakat is an obligatory annual payment made to the poor and needy by Muslims who meet the necessary criteria of wealth. It is considered a form of worship and a means of purifying one's wealth.</p>
+                    <img src="https://placehold.co/600x300/FF5722/FFFFFF?text=Zakat" alt="Charity Hand" class="w-full rounded-lg shadow-md">
+                    <p class="text-gray-600 text-sm">Typically, 2.5% of one's accumulated wealth and savings above a certain threshold (nisab) is given.</p>
+                </div>
+            `;
+        }
+
+        // Function to render content for the Hajj tab
+        function renderHajjContent() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">5. Hajj - Pilgrimage</h2>
+                    <p class="text-gray-700">The Hajj is the annual pilgrimage to Mecca, Saudi Arabia, which is a mandatory religious duty for all adult Muslims who are physically and financially able to undertake the journey. It is performed during the Islamic month of Dhu al-Hijjah.</p>
+                    <img src="https://placehold.co/600x300/9C27B0/FFFFFF?text=Kaaba" alt="Kaaba in Mecca" class="w-full rounded-lg shadow-md">
+                    <p class="text-gray-600 text-sm">The Hajj is a profound spiritual journey that symbolizes unity and devotion.</p>
+                </div>
+            `;
+        }
+
+        // Function to update active tab styling
+        function updateActiveTabStyle(activeButtonId) {
+            // Remove active styles from all buttons
+            [kalmaTabBtn, namazTabBtn, rozaTabBtn, zakatTabBtn, hajjTabBtn].forEach(btn => {
+                btn.classList.remove('text-[#1877F2]', 'font-semibold');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+
+            // Add active styles to the clicked button
+            const activeButton = document.getElementById(activeButtonId);
+            if (activeButton) {
+                activeButton.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                activeButton.classList.add('text-[#1877F2]', 'font-semibold');
+            }
+        }
+
+        // Event Listeners for tab buttons
+        kalmaTabBtn.addEventListener('click', () => {
+            renderKalmaContent();
+            updateActiveTabStyle('kalma-tab');
+        });
+
+        namazTabBtn.addEventListener('click', () => {
+            renderNamazContent();
+            updateActiveTabStyle('namaz-tab');
+        });
+
+        rozaTabBtn.addEventListener('click', () => {
+            renderRozaContent();
+            updateActiveTabStyle('roza-tab');
+        });
+
+        zakatTabBtn.addEventListener('click', () => {
+            renderZakatContent();
+            updateActiveTabStyle('zakat-tab');
+        });
+
+        hajjTabBtn.addEventListener('click', () => {
+            renderHajjContent();
+            updateActiveTabStyle('hajj-tab');
+        });
+
+        // Initial content load when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKalmaContent(); // Load Kalma content by default
+            updateActiveTabStyle('kalma-tab'); // Set Kalma tab as active initially
+        });
+    </script>
+</body>
+</html>
