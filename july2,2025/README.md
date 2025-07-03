@@ -20,3 +20,8 @@
 
 ![Image](https://github.com/user-attachments/assets/f38edb95-efaf-415f-bab3-0cf600055ec0)
 
+
+# Add time functionality:
+
+![Image](https://github.com/user-attachments/assets/13fbbaf0-a782-4566-9ed8-b93c792295df)
+
