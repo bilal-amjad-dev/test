@@ -5,3 +5,8 @@
 ### 5-tabs-home-pillars-duas-story-guides.html
 
 <img width="1600" height="900" alt="Image" src="https://github.com/user-attachments/assets/a83a43af-55b6-4e68-9841-c53b0292d334" />
+
+### 5-tabs-home-pillars-duas-story-guides-game.html
+
+
+<img width="1600" height="900" alt="Image" src="https://github.com/user-attachments/assets/45cdc0d9-4922-4723-991f-7d766980f027" />
