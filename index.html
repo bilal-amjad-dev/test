@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn about the 5 Pillars of Islam with this mobile-friendly app.">
+    <meta name="theme-color" content="#1a73e8">
+    <title>5 Pillars of Islam App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Noto Naskh Arabic for Arabic text -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for theming and font size */
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --header-bg: #1a73e8;
+            --header-text: #ffffff;
+            --footer-bg: #ffffff;
+            --footer-border: #e5e7eb;
+            --active-tab-color: #1a73e8;
+            --inactive-tab-color: #4b5563;
+            --card-bg: #ffffff;
+            --border-color: #d1d5db;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        html, body, #app-container {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        #app-container {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-top: 64px; /* Space for sticky header */
+            padding-bottom: 64px; /* Space for sticky footer */
+        }
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 20; /* Higher z-index than modal overlay */
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--footer-border);
+            flex-shrink: 0; /* Ensure footer doesn't shrink */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        footer button {
+            flex: 1 1 0%;
+            min-width: 0;
+            padding: 12px; /* Increased padding for better touch targets */
+            color: var(--inactive-tab-color);
+        }
+        footer button.active {
+            color: var(--active-tab-color);
+            font-weight: 600;
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease-out;
+            z-index: 30; /* Higher than header for modals */
+        }
+        .modal-content {
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            background-color: var(--bg-color); /* Modal content adapts to theme */
+            color: var(--text-color);
+        }
+        .modal-open .modal-content {
+            transform: translateY(0);
+        }
+        /* Fade-in animation for main content */
+        main > div {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Skeleton UI for loading state */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        /* Style for Arabic text */
+        .font-arabic {
+            font-family: 'Noto Naskh Arabic', serif;
+            direction: rtl; /* Right-to-left for Arabic */
+            text-align: right; /* Align text to the right for RTL languages */
+        }
+        /* Responsive video container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* Collapsible Dua styles */
+        .dua-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .dua-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid transparent; /* default */
+        }
+        .dua-header:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .dua-content {
+            padding: 0 16px 16px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+        }
+        .dua-content.expanded {
+            max-height: 500px; /* Arbitrary large value to allow content to show */
+            opacity: 1;
+            padding: 12px 16px 16px;
+        }
+        .dua-header.expanded {
+            border-bottom-color: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header Section -->
+        <header class="bg-[#1a73e8] text-white p-4 flex items-center justify-between shadow-md" role="banner">
+            <div class="flex flex-col items-start">
+                <span class="font-bold text-xl rounded-md px-2 py-1">Pillars of Islam</span>
+                <span id="islamic-date-display" class="text-sm text-gray-100 mt-1 px-2"></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <svg id="search-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-search cursor-pointer">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <svg id="more-options-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-ellipsis-vertical cursor-pointer">
+                    <circle cx="12" cy="12" r="1"/>
+                    <circle cx="12" cy="5" r="1"/>
+                    <circle cx="12" cy="19" r="1"/>
+                </svg>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" role="main" aria-live="polite">
+            <!-- Content will be injected here by JavaScript -->
+        </main>
+
+        <!-- Footer Section (Navigation: Home, Pillars, Duas, Game, Story) -->
+        <footer class="bg-white border-t border-gray-200 flex justify-around items-center p-2 shadow-lg" role="navigation">
+            <button id="home-tab" class="flex flex-col items-center p-3 rounded-md transition-colors duration-200" aria-label="Go to Home">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-home">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="text-xs mt-1">Home</span>
+            </button>
+            <button id="pillars-tab" class="flex flex-col items-center p-3 rounded-md transition-colors duration-200" aria-label="Open Pillars Menu">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-columns-3">
+                    <rect width="18" height="18" x="3" y="3" rx="2"/>
+                    <path d="M9 3v18"/>
+                    <path d="M15 3v18"/>
+                </svg>
+                <span class="text-xs mt-1">Pillars</span>
+            </button>
+            <button id="duas-tab" class="flex flex-col items-center p-3 rounded-md transition-colors duration-200" aria-label="Go to Duas">
+                <!-- Duas Icon: Hands in prayer -->
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-hand-heart">
+                    <path d="M11 14H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2Z"/>
+                    <path d="M18 14h-5a2 2 0 0 1-2-2V7c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2Z"/>
+                    <path d="M12 22 10 16 6 14"/>
+                    <path d="m17.2 18.2-3.1-3.1a2 2 0 0 0-2.8 0L10 18l.7.7a2 2 0 0 0 2.8 0l3.1-3.1a2 2 0 0 0 0-2.8Z"/>
+                </svg>
+                <span class="text-xs mt-1">Duas</span>
+            </button>
+            <button id="game-tab" class="flex flex-col items-center p-3 rounded-md transition-colors duration-200" aria-label="Go to Games">
+                <!-- Game Icon: Gamepad -->
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-gamepad">
+                    <path d="M6 12H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2m8 0h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2m-4 0h-4m0 0v-4m0 4v4m0-4H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2m8 0h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2"/>
+                    <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/>
+                </svg>
+                <span class="text-xs mt-1">Game</span>
+                <span id="quiz-progress-badge" class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 hidden"></span>
+            </button>
+            <button id="story-tab" class="flex flex-col items-center p-3 rounded-md transition-colors duration-200" aria-label="Go to Stories">
+                <!-- Story Icon: Book -->
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-book-open">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                <span class="text-xs mt-1">Story</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Pillars Options Modal Overlay -->
+    <div id="pillars-options-modal" class="fixed inset-0 modal-overlay flex items-end justify-center z-50 hidden" role="dialog" aria-labelledby="modal-title-pillars" aria-modal="true" tabindex="-1">
+        <div class="bg-white rounded-t-lg shadow-lg p-4 w-full max-w-md modal-content">
+            <h3 id="modal-title-pillars" class="text-xl font-bold text-gray-800 mb-4 text-center">Select a Pillar</h3>
+            <button id="modal-kalma-btn" class="w-full text-left text-lg font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors duration-200 mt-2 flex items-center space-x-3" aria-label="Learn about Kalma (Shahada)" tabindex="0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-file-text">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                    <path d="M10 9H8"/>
+                    <path d="M16 13H8"/>
+                    <path d="M16 17H8"/>
+                </svg>
+                <span>Kalma (Shahada)</span>
+            </button>
+            <button id="modal-namaz-btn" class="w-full text-left text-lg font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors duration-200 mt-2 flex items-center space-x-3" aria-label="Learn about Namaz (Salat)" tabindex="0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-person-standing">
+                    <circle cx="12" cy="5" r="1"/>
+                    <path d="M9 20v-5h3v-2a3 3 0 0 1-3-3V7a1 1 0 0 1 2 0v2h.5l1.5 4.5"/>
+                    <path d="M16 17v-2h-3v-2a3 3 0 0 1 3-3V7a1 1 0 0 0-2 0v2h-.5l-1.5 4.5"/>
+                </svg>
+                <span>Namaz (Salat)</span>
+            </button>
+            <button id="modal-roza-btn" class="w-full text-left text-lg font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors duration-200 mt-2 flex items-center space-x-3" aria-label="Learn about Roza (Sawm)" tabindex="0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-moon">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                </svg>
+                <span>Roza (Sawm)</span>
+            </button>
+            <button id="modal-zakat-btn" class="w-full text-left text-lg font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors duration-200 mt-2 flex items-center space-x-3" aria-label="Learn about Zakat" tabindex="0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-hand-coins">
+                    <path d="M11 11V3H6a2 2 0 0 0-2 2v4c0 2.2 1.8 4 4 4h2Z"/>
+                    <path d="M17 3H12v8h5c2.2 0 4-1.8 4-4V5a2 2 0 0 0-2-2Z"/>
+                    <path d="M12 22H4a2 2 0 0 1-2-2v-4c0-2.2 1.8-4 4-4h8"/>
+                    <path d="M20 18H12v4h8a2 2 0 0 0 2-2v-2c0-2.2-1.8-4-4-4Z"/>
+                </svg>
+                <span>Zakat</span>
+            </button>
+            <button id="modal-hajj-btn" class="w-full text-left text-lg font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors duration-200 mt-2 flex items-center space-x-3" aria-label="Learn about Hajj (Pilgrimage)" tabindex="0">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-box">
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 22V12"/>
+                </svg>
+                <span>Hajj (Pilgrimage)</span>
+            </button>
+            <button id="modal-home-btn-pillars" class="w-full text-center text-lg font-bold text-gray-700 py-3 px-4 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 mt-4" aria-label="Back to Home" tabindex="0">
+                Back to Home
+            </button>
+            <button id="modal-close-btn-pillars" class="w-full text-center text-lg font-bold text-gray-700 py-3 px-4 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 mt-2" aria-label="Close Modal" tabindex="0">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- More Options Modal Overlay -->
+    <div id="more-options-modal" class="fixed inset-0 modal-overlay flex items-end justify-center z-50 hidden" role="dialog" aria-labelledby="modal-title-options" aria-modal="true" tabindex="-1">
+        <div class="bg-white rounded-t-lg shadow-lg p-4 w-full max-w-md modal-content">
+            <h3 id="modal-title-options" class="text-xl font-bold text-gray-800 mb-4 text-center">More Options</h3>
+            <div class="space-y-3">
+                <!-- Dark Mode removed -->
+                <!-- Font Size removed -->
+                <!-- Language removed -->
+                <!-- Kids Mode removed -->
+                <!-- Send Feedback removed -->
+            </div>
+            <button id="modal-close-btn-options" class="w-full text-center text-lg font-bold py-3 px-4 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 mt-4" aria-label="Close Options Modal" tabindex="0">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Variables and Constants ---
+        const mainContent = document.getElementById('main-content');
+        const homeTabBtn = document.getElementById('home-tab');
+        const pillarsTabBtn = document.getElementById('pillars-tab');
+        const duasTabBtn = document.getElementById('duas-tab');
+        const gameTabBtn = document.getElementById('game-tab');
+        const storyTabBtn = document.getElementById('story-tab'); // New story tab button
+        const islamicDateDisplay = document.getElementById('islamic-date-display');
+        const quizProgressBadge = document.getElementById('quiz-progress-badge');
+
+        // Modals
+        const pillarsOptionsModal = document.getElementById('pillars-options-modal');
+        const moreOptionsModal = document.getElementById('more-options-modal');
+
+        // Modal Buttons (Pillars)
+        const modalKalmaBtn = document.getElementById('modal-kalma-btn');
+        const modalNamazBtn = document.getElementById('modal-namaz-btn');
+        const modalRozaBtn = document.getElementById('modal-roza-btn');
+        const modalZakatBtn = document.getElementById('modal-zakat-btn');
+        const modalHajjBtn = document.getElementById('modal-hajj-btn');
+        const modalHomeBtnPillars = document.getElementById('modal-home-btn-pillars');
+        const modalCloseBtnPillars = document.getElementById('modal-close-btn-pillars');
+
+        // Modal Buttons (More Options)
+        const moreOptionsIcon = document.getElementById('more-options-icon');
+        const modalCloseBtnOptions = document.getElementById('modal-close-btn-options');
+
+        // --- Data Definitions ---
+        const hadiths = [
+            { text: "The best among you are those who learn the Qur'an and teach it.", source: "Sahih Bukhari" },
+            { text: "Actions are but by intentions, and every man shall have but that which he intended.", source: "Sahih Bukhari and Sahih Muslim" },
+            { text: "None of you truly believes until he wishes for his brother what he wishes for himself.", source: "Sahih Bukhari and Sahih Muslim" },
+            { text: "Indeed, Allah is Kind and loves kindness in all matters.", source: "Sahih Bukhari and Sahih Muslim" },
+            { text: "Whoever believes in Allah and the Last Day, let him speak good or remain silent.", source: "Sahih Bukhari and Sahih Muslim" }
+        ];
+
+        const duas = [
+            {
+                id: 'dua1',
+                title: "Dua for Knowledge",
+                arabic: "رَبِّ زِدْنِي عِلْمًا",
+                transliteration: "Rabbi Zidni Ilma",
+                english: "My Lord, increase me in knowledge."
+            },
+            {
+                id: 'dua2',
+                title: "Dua for Protection",
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ",
+                transliteration: "Allahumma inni a'udhu bika min al-hammi wal-hazan...",
+                english: "O Allah, I seek refuge in You from anxiety and sorrow..."
+            },
+            {
+                id: 'dua3',
+                title: "Dua before Eating",
+                arabic: "بِسْمِ اللَّهِ",
+                transliteration: "Bismillah",
+                english: "In the name of Allah."
+            },
+            {
+                id: 'dua4',
+                title: "Dua after Eating",
+                arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ",
+                transliteration: "Alhamdulillahilladhi at'amana wa saqana wa ja'alana Muslimeen",
+                english: "All praise is due to Allah, Who fed us and quenched our thirst and made us Muslims."
+            },
+            {
+                id: 'dua5',
+                title: "Dua before Sleeping",
+                arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+                transliteration: "Bismika Allahumma amootu wa ahya",
+                english: "In Your name, O Allah, I die and I live."
+            },
+            {
+                id: 'dua6',
+                title: "Dua for Travel",
+                arabic: "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَىٰ رَبِّنَا لَمُنْقَلِبُونَ",
+                transliteration: "Subhanalladhi sakhkhara lana hadha wama kunna lahu muqrineen wa inna ila Rabbina lamunqaliboon",
+                english: "Glory be to Him Who has subjected this (transport) to us, and we could not have subdued it. And verily, to Our Lord is our return!"
+            },
+            {
+                id: 'dua7',
+                title: "Dua for Forgiveness",
+                arabic: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+                transliteration: "Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'anni",
+                english: "O Allah, You are the Forgiver, You love to forgive, so forgive me."
+            }
+        ];
+
+        const quizQuestions = [
+            {
+                question: "What is the %age of Zakat?",
+                options: ["2%", "2.5%", "5%", "10%"],
+                answer: "2.5%",
+                explanation: "Zakat is typically 2.5% of one's accumulated wealth above a certain threshold (nisab)."
+            },
+            {
+                question: "What is the number of Prayers?",
+                options: ["3", "4", "5", "6"],
+                answer: "5",
+                explanation: "Muslims perform five obligatory prayers (Salat) at specific times throughout the day."
+            },
+            {
+                question: "Which of the following is the declaration of faith in Islam?",
+                options: ["Namaz", "Shahada", "Roza", "Zakat"],
+                answer: "Shahada",
+                explanation: "Shahada is the first pillar, the declaration of belief in the oneness of God and acceptance of Muhammad as His prophet."
+            },
+            {
+                question: "What is the Arabic term for fasting during Ramadan?",
+                options: ["Hajj", "Zakat", "Salat", "Sawm"],
+                answer: "Sawm",
+                explanation: "Sawm refers to fasting, which is the fourth pillar of Islam, observed during the month of Ramadan."
+            },
+            {
+                question: "What is the pilgrimage to Mecca called?",
+                options: ["Umrah", "Jihad", "Hajj", "Eid"],
+                answer: "Hajj",
+                explanation: "Hajj is the annual pilgrimage to the Kaaba in Mecca, a religious duty for all able Muslims."
+            },
+            {
+                question: "What is the significance of Sa’i in Hajj?",
+                options: ["Running between hills", "Circling the Kaaba", "Praying at Arafat", "Throwing pebbles"],
+                answer: "Running between hills",
+                explanation: "Sa’i involves walking seven times between Safa and Marwah, commemorating Hagar’s search for water for her son Ishmael."
+            }
+        ];
+
+        const islamicStories = [
+            {
+                id: 'story1',
+                title: "The Story of Prophet Muhammad (PBUH) and the Spider",
+                content: "During the Hijra (migration) from Mecca to Medina, Prophet Muhammad (PBUH) and Abu Bakr (RA) took refuge in a cave. By the will of Allah, a spider spun a web across the entrance, and a pigeon laid eggs near it. When the Meccan pursuers arrived, they saw the undisturbed web and the pigeon, concluding that no one could have entered the cave. This miraculous event protected the Prophet (PBUH) and Abu Bakr (RA) from their enemies. It teaches us about Allah's protection and reliance on Him.",
+                image: "https://placehold.co/600x300/8B4513/FFFFFF?text=Spider+Web+Cave"
+            },
+            {
+                id: 'story2',
+                title: "The Patience of Prophet Ayub (Job)",
+                content: "Prophet Ayub (AS) was a wealthy and righteous man, blessed with a large family and good health. Allah tested him by taking away all his possessions, his children, and afflicting him with a severe illness. Despite immense suffering, Prophet Ayub (AS) remained steadfast in his faith, never complaining to Allah. His unwavering patience and trust in Allah serve as a profound example for all believers. Eventually, Allah restored his health, wealth, and family, doubling his blessings.",
+                image: "https://placehold.co/600x300/228B22/FFFFFF?text=Prophet+Ayub"
+            },
+            {
+                id: 'story3',
+                title: "The Generosity of Hatim al-Tai",
+                content: "Hatim al-Tai was a pre-Islamic Arab chief renowned for his extraordinary generosity. Many stories are told about his benevolence, where he would give away all his possessions to those in need, even sacrificing his most prized possessions without hesitation. His name became synonymous with generosity, and his legacy continues to inspire acts of kindness and selflessness.",
+                image: "https://placehold.co/600x300/FFD700/000000?text=Hatim+al-Tai"
+            }
+        ];
+
+        // --- Game State Variables ---
+        let currentQuizQuestionIndex = 0;
+        let quizScore = 0;
+        let quizHighScore = localStorage.getItem('islamAppQuizHighScore') ? parseInt(localStorage.getItem('islamAppQuizHighScore')) : 0;
+        let quizTimerInterval; // For timed quiz
+
+        // --- Translations (Simplified to English only) ---
+        const translations = {
+            en: {
+                home: "Home",
+                pillars: "Pillars",
+                duas: "Duas",
+                game: "Game",
+                story: "Story", // New translation for story tab
+                select_pillar: "Select a Pillar",
+                kalma_shahada: "Kalma (Shahada)",
+                namaz_salat: "Namaz (Salat)",
+                roza_sawm: "Roza (Sawm)",
+                zakat: "Zakat",
+                hajj_pilgrimage: "Hajj (Pilgrimage)",
+                back_to_home: "Back to Home",
+                close: "Close",
+                more_options: "More Options",
+                welcome_title: "Welcome to the Pillars of Islam App!",
+                welcome_desc: "This app provides essential information about the core tenets of Islam. Explore the 5 Pillars and gain daily inspiration.",
+                hadith_of_day: "Hadith of the Day",
+                about_kalma_title: "About Kalma (Shahada)",
+                shahada_desc: "The Shahada is the fundamental declaration of faith in Islam, affirming the absolute oneness of God (Allah) and accepting Muhammad as His final prophet.",
+                shahada_arabic_text: "Arabic Text:",
+                shahada_transliteration: "Transliteration:",
+                shahada_meaning: "Meaning:",
+                shahada_meaning_text: "\"There is no god but Allah, Muhammad is the messenger of Allah.\"",
+                shahada_info: "Reciting the Shahada with sincerity is the first step to entering Islam.",
+                prayer_times_title: "Prayer Times (Today, {date})",
+                fajr: "Fajr:",
+                dhuhr: "Dhuhr:",
+                asr: "Asr:",
+                maghrib: "Maghrib:",
+                isha: "Isha:",
+                unable_to_fetch_prayer_times: "Unable to fetch prayer times.",
+                kalma_pillar_title: "1. Kalma (Shahada) - The Declaration of Faith",
+                namaz_pillar_title: "2. Namaz (Salat) - Prayer",
+                namaz_desc: "Muslims pray five times a day facing the Kaaba in Mecca: Fajr (dawn), Dhuhr (noon), Asr (mid-afternoon), Maghrib (sunset), and Isha (night).",
+                steps_of_prayer: "Steps of Prayer:",
+                roza_pillar_title: "3. Roza (Sawm) - Fasting",
+                roza_desc: "Fasting during Ramadan involves abstaining from food, drink, and other physical needs from dawn until sunset.",
+                roza_info: "Fasting teaches patience, discipline, and empathy for the less fortunate.",
+                zakat_pillar_title: "4. Zakat - Charity",
+                zakat_desc: "Zakat is an obligatory annual payment made to the poor and needy by Muslims who meet the necessary criteria of wealth.",
+                zakat_info: "Typically, 2.5% of one's accumulated wealth above a certain threshold (nisab) is given.",
+                calculate_zakat: "Calculate Zakat",
+                your_zakat: "Your Zakat:",
+                wealth_below_nisab: "Wealth below nisab threshold.",
+                hajj_pillar_title: "5. Hajj - Pilgrimage",
+                hajj_desc: "Hajj is the annual pilgrimage to Mecca, mandatory for Muslims who are physically and financially able, performed in Dhu al-Hijjah.",
+                hajj_info: "Hajj symbolizes unity and devotion.",
+                hajj_rituals: "Hajj Rituals:",
+                duas_title: "Duas (Supplications)",
+                duas_desc: "Duas are personal invocations or prayers that Muslims make to Allah. They can be for anything, from seeking forgiveness and guidance to expressing gratitude or asking for worldly needs.",
+                interactive_games: "Interactive Games!",
+                choose_game: "Choose a game to test and enhance your knowledge of Islam.",
+                start_quiz_game: "Start The Quiz",
+                game_zone: "Game Zone",
+                pillars_quiz: "Quiz",
+                question: "Question",
+                of: "of",
+                next_question: "Next Question",
+                current_score: "Current Score:",
+                high_score: "High Score:",
+                correct_feedback: "Correct! Well done.",
+                incorrect_feedback: "Incorrect. The correct answer was:",
+                quiz_completed: "Quiz Completed!",
+                your_final_score: "Your Final Score:",
+                play_again: "Play Again",
+                back_to_games_menu: "Back to Games Menu",
+                media_load_failed: "Media failed to load.",
+                islamic_stories: "Islamic Stories", // New translation
+                explore_stories: "Explore inspiring stories from Islamic history and the lives of Prophets." // New translation
+            }
+        };
+
+        // --- Utility Functions ---
+        function getRandomHadith() {
+            return hadiths[Math.floor(Math.random() * hadiths.length)];
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function showSkeletonUI() {
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-4">
+                    <div class="h-8 w-3/4 skeleton rounded"></div>
+                    <div class="h-4 w-full skeleton rounded"></div>
+                    <div class="h-4 w-5/6 skeleton rounded"></div>
+                    <div class="h-32 w-full skeleton rounded"></div>
+                </div>
+            `;
+        }
+
+        function updateActiveTabStyle(activeButtonId) {
+            // Added storyTabBtn to the list of all tab buttons
+            const allTabButtons = [homeTabBtn, pillarsTabBtn, duasTabBtn, gameTabBtn, storyTabBtn];
+
+            allTabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            const activeButton = document.getElementById(activeButtonId);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        function getIslamicDate() {
+            try {
+                if (Intl.DateTimeFormat.supportedLocalesOf('en-US-u-ca-islamic').length > 0) {
+                    const islamicDate = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }).format(new Date());
+                    return islamicDate;
+                } else {
+                    return "Islamic Date (Browser not supported)";
+                }
+            } catch (e) {
+                console.error("Error getting Islamic date:", e);
+                return "Islamic Date (Error)";
+            }
+        }
+
+        // Removed readText function
+        function handleMediaError(event) {
+            event.target.parentElement.innerHTML += `<p class="text-red-600 text-sm mt-2">Media failed to load.</p>`;
+            event.target.remove(); // Remove the broken media element
+        }
+
+        function toggleDua(idPrefix) {
+            const duaContent = document.getElementById(`${idPrefix}-content`);
+            const duaHeader = document.getElementById(`${idPrefix}-header`);
+            if (duaContent && duaHeader) {
+                duaContent.classList.toggle('expanded');
+                duaHeader.classList.toggle('expanded');
+                const ariaExpanded = duaHeader.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+                duaHeader.setAttribute('aria-expanded', ariaExpanded);
+            }
+        }
+
+        // Removed shareContent function
+
+        // --- Render Functions ---
+
+        // Prayer times removed, as it relies on API
+        async function renderHomeContent() {
+            showSkeletonUI();
+            setTimeout(async () => {
+                const randomHadith = getRandomHadith();
+                // Prayer times removed from here
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Welcome to the Pillars of Islam App!</h2>
+                        <p class="text-gray-700">This app provides essential information about the core tenets of Islam. Explore the 5 Pillars and gain daily inspiration.</p>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-md shadow-sm mt-6 dua-card">
+                            <h3 class="font-bold text-xl mb-2">Hadith of the Day</h3>
+                            <p class="text-gray-700 italic">"${randomHadith.text}"</p>
+                            <p class="text-gray-600 text-sm mt-2">- ${randomHadith.source}</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md p-4 space-y-4 dua-card">
+                            <h3 class="text-xl font-bold text-gray-800">About Kalma (Shahada)</h3>
+                            <p class="text-gray-700">The Shahada is the fundamental declaration of faith in Islam, affirming the absolute oneness of God (Allah) and accepting Muhammad as His final prophet.</p>
+                            <p class="text-gray-700 font-semibold text-lg">Arabic Text:</p>
+                            <p class="text-gray-800 text-xl font-arabic text-center">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</p>
+                            <p class="text-gray-700 font-semibold text-lg">Transliteration:</p>
+                            <p class="text-gray-800 text-lg text-center">Lā ilāha illā Allāh, Muḥammadur rasūl Allāh</p>
+                            <p class="text-gray-700 font-semibold text-lg">Meaning:</p>
+                            <p class="text-gray-800 text-lg text-center">"There is no god but Allah, Muhammad is the messenger of Allah."</p>
+                            <audio controls class="w-full mt-4" aria-label="Audio recitation of Shahada">
+                                <source src="https://placehold.co/audio/kalma.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <img loading="lazy" src="https://placehold.co/600x300/4CAF50/FFFFFF?text=Shahada+Calligraphy" alt="Shahada Calligraphy" class="w-full rounded-lg shadow-md mt-4">
+                            <p class="text-gray-600 text-sm">Reciting the Shahada with sincerity is the first step to entering Islam.</p>
+                        </div>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function renderKalmaPillarContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <h2 class="text-2xl font-bold text-gray-800">1. Kalma (Shahada) - The Declaration of Faith</h2>
+                        <p class="text-gray-700">The Shahada is the fundamental declaration of faith in Islam, affirming the absolute oneness of God (Allah) and accepting Muhammad as His final prophet.</p>
+                        <p class="text-gray-700 font-semibold text-lg">Arabic Text:</p>
+                        <p class="text-gray-800 text-xl font-arabic text-center">لَا إِلَٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</p>
+                        <p class="text-700 font-semibold text-lg">Transliteration:</p>
+                        <p class="text-gray-800 text-lg text-center">Lā ilāha illā Allāh, Muḥammadur rasūl Allāh</p>
+                        <p class="text-gray-700 font-semibold text-lg">Meaning:</p>
+                        <p class="text-gray-800 text-lg text-center">"There is no god but Allah, Muhammad is the messenger of Allah."</p>
+                        <audio controls class="w-full mt-4" aria-label="Audio recitation of Shahada">
+                            <source src="https://placehold.co/audio/kalma.mp3" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <img loading="lazy" src="https://placehold.co/600x300/4CAF50/FFFFFF?text=Shahada+Calligraphy" alt="Shahada Calligraphy" class="w-full rounded-lg shadow-md mt-4">
+                        <p class="text-gray-600 text-sm">Reciting the Shahada with sincerity is the first step to entering Islam.</p>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function renderNamazContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <h2 class="text-2xl font-bold text-gray-800">2. Namaz (Salat) - Prayer</h2>
+                        <p class="text-gray-700">Muslims pray five times a day facing the Kaaba in Mecca: Fajr (dawn), Dhuhr (noon), Asr (mid-afternoon), Maghrib (sunset), and Isha (night).</p>
+                        <h3 class="text-lg font-semibold text-gray-800">Steps of Prayer:</h3>
+                        <ol class="list-decimal pl-6 text-gray-700 space-y-2">
+                            <li>Make intention (Niyyah) for the specific prayer.</li>
+                            <li>Stand facing the Qibla and say "Allahu Akbar" to begin.</li>
+                            <li>Recite Surah Al-Fatiha and another Quranic passage.
+                                <audio controls class="w-full mt-2" aria-label="Audio recitation of Surah Al-Fatiha">
+                                    <source src="https://placehold.co/audio/fatiha.mp3" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </li>
+                            <li>Perform Ruku (bowing), saying "Subhana Rabbiyal Adheem".</li>
+                            <li>Stand, then perform Sujood (prostration) twice.</li>
+                            <li>Complete the required number of Rak'ahs for the prayer.</li>
+                        </ol>
+                        <img loading="lazy" src="https://placehold.co/600x300/2196F3/FFFFFF?text=People+Praying" alt="People Praying" class="w-full rounded-lg shadow-md">
+                        <p class="text-gray-600 text-sm">Each prayer consists of a series of physical movements and recitations from the Quran.</p>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function renderRozaContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <h2 class="text-2xl font-bold text-gray-800">3. Roza (Sawm) - Fasting</h2>
+                        <p class="text-gray-700">Fasting during Ramadan involves abstaining from food, drink, and other physical needs from dawn until sunset.</p>
+                        <img loading="lazy" src="https://placehold.co/600x300/FFC107/000000?text=Ramadan+Crescent" alt="Ramadan Crescent" class="w-full rounded-lg shadow-md">
+                        <p class="text-gray-600 text-sm">Fasting teaches patience, discipline, and empathy for the less fortunate.</p>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function renderZakatContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <h2 class="text-2xl font-bold text-gray-800">4. Zakat - Charity</h2>
+                        <p class="text-gray-700">Zakat is an obligatory annual payment made to the poor and needy by Muslims who meet the necessary criteria of wealth.</p>
+                        <div class="bg-white p-4 rounded-lg shadow-md dua-card">
+                            <h3 class="font-bold text-xl mb-2">Calculate Zakat</h3>
+                            <label for="wealth-input" class="block text-gray-700 text-sm font-bold mb-2">Total Wealth (e.g., in USD):</label>
+                            <input type="number" id="wealth-input" placeholder="Enter your wealth" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100">
+                            <button id="calculate-zakat-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-md">Calculate Zakat</button>
+                            <p id="zakat-result" class="mt-4 text-lg font-semibold text-gray-800"></p>
+                        </div>
+                        <img loading="lazy" src="https://placehold.co/600x300/FF5722/FFFFFF?text=Charity+Hand" alt="Charity Hand" class="w-full rounded-lg shadow-md">
+                        <p class="text-gray-600 text-sm">Typically, 2.5% of one's accumulated wealth above a certain threshold (nisab) is given.</p>
+                    </div>
+                `;
+                document.getElementById('calculate-zakat-btn').addEventListener('click', calculateZakat);
+            }, 500);
+        }
+
+        function calculateZakat() {
+            const wealthInput = document.getElementById('wealth-input');
+            const zakatResult = document.getElementById('zakat-result');
+            const wealth = parseFloat(wealthInput.value);
+            // Nisab value in USD (example: equivalent to 87.48 grams of gold or 612.36 grams of silver)
+            // This is a simplified example. Real Nisab changes daily.
+            const nisabGoldUSD = 6500; // Example: approx value of 87.48g gold
+            const nisabSilverUSD = 500; // Example: approx value of 612.36g silver
+
+            if (isNaN(wealth) || wealth <= 0) {
+                zakatResult.textContent = "Please enter a valid wealth amount.";
+                zakatResult.classList.add('text-red-600');
+                return;
+            }
+
+            if (wealth >= nisabSilverUSD) { // Using silver nisab as it's lower and more inclusive
+                const zakatAmount = (wealth * 0.025).toFixed(2);
+                zakatResult.textContent = `Your Zakat: $${zakatAmount}`;
+                zakatResult.classList.remove('text-red-600');
+                zakatResult.classList.add('text-green-600');
+            } else {
+                zakatResult.textContent = "Wealth below nisab threshold.";
+                zakatResult.classList.remove('text-green-600');
+                zakatResult.classList.add('text-red-600');
+            }
+        }
+
+        function renderHajjContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <h2 class="text-2xl font-bold text-gray-800">5. Hajj - Pilgrimage</h2>
+                        <p class="text-gray-700">Hajj is the annual pilgrimage to Mecca, mandatory for Muslims who are physically and financially able, performed in Dhu al-Hijjah.</p>
+                        <h3 class="text-lg font-semibold text-gray-800">Hajj Rituals:</h3>
+                        <ol class="list-decimal pl-6 text-gray-700 space-y-2">
+                            <li>**Ihram:** State of ritual purity, donning special garments.</li>
+                            <li>**Tawaf:** Circling the Kaaba seven times counter-clockwise.</li>
+                            <li>**Sa'i:** Walking seven times between the hills of Safa and Marwah.</li>
+                            <li>**Wuquf (Standing at Arafat):** The most important ritual, standing in prayer from noon to sunset on the 9th of Dhul-Hijjah.</li>
+                            <li>**Muzdalifah:** Collecting pebbles.</li>
+                            <li>**Ramy (Stoning of the Jamarat):</li >Symbolically stoning the devil.</li>
+                            <li>**Sacrifice (Qurbani):** Animal sacrifice.</li>
+                            <li>**Tawaf al-Ifadah:** Another circumambulation of the Kaaba.</li>
+                            <li>**Halq or Taqsir:** Shaving or trimming hair.</li>
+                        </ol>
+                        <img loading="lazy" src="https://placehold.co/600x300/9C27B0/FFFFFF?text=Kaaba+in+Mecca" alt="Kaaba in Mecca" class="w-full rounded-lg shadow-md mt-4">
+                        <p class="text-gray-600 text-sm">Hajj symbolizes unity and devotion.</p>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function renderDuasContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                let duasHtml = `<div class="p-4 space-y-3">
+                                    <h2 class="text-2xl font-bold text-gray-800">Duas (Supplications)</h2>
+                                    <p class="text-700">Duas are personal invocations or prayers that Muslims make to Allah. They can be for anything, from seeking forgiveness and guidance to expressing gratitude or asking for worldly needs.</p>`;
+
+                duas.forEach((dua, index) => {
+                    duasHtml += `
+                        <div class="dua-card rounded-lg shadow-md overflow-hidden">
+                            <button id="dua-${dua.id}-header" class="dua-header text-gray-800" onclick="toggleDua('dua-${dua.id}')" aria-expanded="false" aria-controls="dua-${dua.id}-content">
+                                <span>${dua.title}</span>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="dua-${dua.id}-content" class="dua-content space-y-2">
+                                <p class="text-gray-800 text-xl font-arabic text-right leading-loose">${dua.arabic}</p>
+                                <p class="text-gray-700 italic">${dua.transliteration}</p>
+                                <p class="text-gray-700">${dua.english}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                duasHtml += `</div>`;
+                mainContent.innerHTML = duasHtml;
+            }, 500);
+        }
+
+        // Favorites content removed
+        function renderGameContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-6 text-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Interactive Games!</h2>
+                        <p class="text-gray-700">Choose a game to test and enhance your knowledge of Islam.</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md mt-6 space-y-4 dua-card">
+                            <button id="start-quiz-game-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md shadow-lg transition-colors duration-200" aria-label="Start Quiz Game">
+                                Start The Quiz
+                            </button>
+                            <!-- Match the Pillar Game removed -->
+                        </div>
+                        <img loading="lazy" src="https://placehold.co/600x300/60A5FA/FFFFFF?text=Game+Zone" alt="Game Zone" class="w-full rounded-lg shadow-md mt-4">
+                    </div>
+                `;
+                document.getElementById('start-quiz-game-btn').addEventListener('click', () => {
+                    currentQuizQuestionIndex = 0;
+                    quizScore = 0;
+                    displayQuizQuestion();
+                });
+                updateQuizProgressBadge(true); // Hide badge when on game selection screen
+            }, 500);
+        }
+
+        // --- Quiz Game Functions ---
+        function displayQuizQuestion() {
+            clearInterval(quizTimerInterval); // Clear any existing timer
+            if (currentQuizQuestionIndex < quizQuestions.length) {
+                const questionData = quizQuestions[currentQuizQuestionIndex]; // Get the current question data without shuffling the whole array again
+                const shuffledOptions = shuffleArray(questionData.options); // Shuffle options
+
+                let optionsHtml = shuffledOptions.map((option, index) => `
+                    <button class="w-full text-left text-lg font-medium text-gray-800 py-3 px-4 rounded-md hover:bg-blue-100 transition-colors duration-200 mt-2 quiz-option-btn" data-answer="${option}" role="radio" aria-checked="false">
+                        ${String.fromCharCode(65 + index)}. ${option}
+                    </button>
+                `).join('');
+
+                mainContent.innerHTML = `
+                    <div class="p-4 space-y-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Quiz</h2>
+                        <p class="text-gray-700">Question ${currentQuizQuestionIndex + 1} of ${quizQuestions.length}</p>
+                        <div class="bg-white p-6 rounded-lg shadow-md mt-6 dua-card">
+                            <p class="text-lg font-semibold mb-4" id="quiz-question">${questionData.question}</p>
+                            <div id="quiz-options" class="space-y-2" role="radiogroup">
+                                ${optionsHtml}
+                            </div>
+                            <div id="quiz-feedback" class="mt-4 text-center font-bold text-lg" aria-live="assertive"></div>
+                            <button id="next-quiz-question-btn" class="w-full text-center text-lg font-bold text-blue-700 py-3 px-4 rounded-md bg-blue-100 hover:bg-blue-200 transition-colors duration-200 mt-4 hidden">
+                                Next Question
+                            </button>
+                        </div>
+                        <div class="text-center text-gray-600 mt-4">
+                            <span>Current Score:</span> <span id="current-quiz-score">${quizScore}</span> / ${quizQuestions.length} | <span>High Score:</span> <span id="high-quiz-score">${quizHighScore}</span>
+                        </div>
+                        <div class="text-center text-gray-600 mt-2">
+                            <span>Time:</span> <span id="quiz-timer">30s</span>
+                        </div>
+                    </div>
+                `;
+
+                document.querySelectorAll('.quiz-option-btn').forEach(button => {
+                    button.addEventListener('click', handleQuizAnswerClick);
+                });
+                document.getElementById('next-quiz-question-btn').addEventListener('click', () => {
+                    currentQuizQuestionIndex++;
+                    displayQuizQuestion();
+                });
+                startQuizTimer();
+                updateQuizProgressBadge();
+            } else {
+                displayQuizResults();
+            }
+        }
+
+        function startQuizTimer() {
+            let timeLeft = 30;
+            const timerElement = document.getElementById('quiz-timer');
+            timerElement.textContent = `${timeLeft}s`;
+
+            quizTimerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(quizTimerInterval);
+                    handleQuizAnswerClick({ target: { dataset: { answer: 'timed_out' } } }); // Simulate a wrong answer
+                }
+            }, 1000);
+        }
+
+        function handleQuizAnswerClick(event) {
+            clearInterval(quizTimerInterval); // Stop the timer
+            const selectedOption = event.target.dataset.answer;
+            const questionData = quizQuestions[currentQuizQuestionIndex]; // Get the actual question data for current index
+            const feedbackDiv = document.getElementById('quiz-feedback');
+            const nextButton = document.getElementById('next-quiz-question-btn');
+
+            document.querySelectorAll('.quiz-option-btn').forEach(button => {
+                button.disabled = true;
+                button.setAttribute('aria-checked', 'false'); // Reset aria-checked for all
+                if (button.dataset.answer === questionData.answer) {
+                    button.classList.add('bg-green-200'); // Correct answer highlight
+                } else if (button.dataset.answer === selectedOption) {
+                    button.classList.add('bg-red-200'); // Incorrect selected answer highlight
+                }
+            });
+
+            if (selectedOption === questionData.answer) {
+                quizScore++;
+                feedbackDiv.textContent = `Correct! Well done.`;
+                feedbackDiv.classList.remove('text-red-600');
+                feedbackDiv.classList.add('text-green-600');
+            } else {
+                // Corrected: Use explanation from the current questionData
+                feedbackDiv.textContent = `Incorrect. The correct answer was: ${questionData.answer}. ${questionData.explanation || ''}`;
+                feedbackDiv.classList.remove('text-green-600');
+                feedbackDiv.classList.add('text-red-600');
+            }
+            document.getElementById('current-quiz-score').textContent = quizScore;
+            nextButton.classList.remove('hidden');
+        }
+
+        function displayQuizResults() {
+            if (quizScore > quizHighScore) {
+                quizHighScore = quizScore;
+                localStorage.setItem('islamAppQuizHighScore', quizHighScore);
+            }
+            updateQuizProgressBadge(true); // Hide badge on results
+
+            mainContent.innerHTML = `
+                <div class="p-4 space-y-6 text-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Quiz Completed!</h2>
+                    <p class="text-xl font-semibold text-gray-700">Your Final Score: ${quizScore} / ${quizQuestions.length}</p>
+                    <p class="text-lg text-gray-600">High Score: ${quizHighScore} / ${quizQuestions.length}</p>
+                    <div class="mt-6">
+                        <button id="restart-quiz-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md shadow-lg transition-colors duration-200" aria-label="Restart Quiz">
+                            Play Again
+                        </button>
+                        <button id="back-to-game-menu-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-md shadow-lg transition-colors duration-200 ml-4" aria-label="Back to Game Menu">
+                            Back to Games Menu
+                        </button>
+                    </div>
+                    <img loading="lazy" src="https://placehold.co/600x300/60A5FA/FFFFFF?text=Quiz+Results" alt="Quiz Results" class="w-full rounded-lg shadow-md mt-4">
+                </div>
+            `;
+            document.getElementById('restart-quiz-btn').addEventListener('click', () => {
+                currentQuizQuestionIndex = 0;
+                quizScore = 0;
+                displayQuizQuestion();
+            });
+            document.getElementById('back-to-game-menu-btn').addEventListener('click', renderGameContent);
+        }
+
+        function updateQuizProgressBadge(hide = false) {
+            if (hide) {
+                quizProgressBadge.classList.add('hidden');
+            } else {
+                quizProgressBadge.textContent = `${currentQuizQuestionIndex + 1}/${quizQuestions.length}`;
+                quizProgressBadge.classList.remove('hidden');
+            }
+        }
+
+        // New function to render Story content with collapsible UI
+        function renderStoryContent() {
+            showSkeletonUI();
+            setTimeout(() => {
+                let storiesHtml = `<div class="p-4 space-y-3">
+                                    <h2 class="text-2xl font-bold text-gray-800">Islamic Stories</h2>
+                                    <p class="text-gray-700">Explore inspiring stories from Islamic history and the lives of Prophets.</p>`;
+
+                islamicStories.forEach(story => {
+                    storiesHtml += `
+                        <div class="dua-card rounded-lg shadow-md overflow-hidden">
+                            <button id="story-${story.id}-header" class="dua-header text-gray-800" onclick="toggleDua('story-${story.id}')" aria-expanded="false" aria-controls="story-${story.id}-content">
+                                <span>${story.title}</span>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="story-${story.id}-content" class="dua-content space-y-2">
+                                <img loading="lazy" src="${story.image}" alt="${story.title}" class="w-full h-48 object-cover rounded-md mb-3">
+                                <p class="text-gray-700">${story.content}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                storiesHtml += `</div>`;
+                mainContent.innerHTML = storiesHtml;
+            }, 500);
+        }
+
+        // --- Modal Control Functions ---
+        function showModal(modalElement) {
+            modalElement.classList.remove('hidden');
+            modalElement.offsetWidth; // Trigger reflow
+            modalElement.querySelector('div').classList.remove('translate-y-full');
+            modalElement.classList.add('modal-open');
+            // Focus on first focusable element in modal for accessibility
+            const firstFocusable = modalElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        }
+
+        function hideModal(modalElement) {
+            modalElement.querySelector('div').classList.add('translate-y-full');
+            modalElement.classList.remove('modal-open');
+            setTimeout(() => {
+                modalElement.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- Event Listeners ---
+        homeTabBtn.addEventListener('click', () => {
+            renderHomeContent();
+            updateActiveTabStyle('home-tab');
+            clearInterval(quizTimerInterval); // Stop timer if navigating away from game
+            quizProgressBadge.classList.add('hidden');
+        });
+
+        pillarsTabBtn.addEventListener('click', () => {
+            showModal(pillarsOptionsModal);
+            updateActiveTabStyle('pillars-tab');
+            clearInterval(quizTimerInterval);
+            quizProgressBadge.classList.add('hidden');
+        });
+
+        duasTabBtn.addEventListener('click', () => {
+            renderDuasContent();
+            updateActiveTabStyle('duas-tab');
+            clearInterval(quizTimerInterval);
+            quizProgressBadge.classList.add('hidden');
+        });
+
+        gameTabBtn.addEventListener('click', () => {
+            renderGameContent(); // Now renders the game selection menu
+            updateActiveTabStyle('game-tab');
+            // Quiz progress badge will be shown/hidden by game functions
+        });
+
+        // New story tab event listener
+        storyTabBtn.addEventListener('click', () => {
+            renderStoryContent();
+            updateActiveTabStyle('story-tab');
+            clearInterval(quizTimerInterval);
+            quizProgressBadge.classList.add('hidden');
+        });
+
+        // Favorites tab event listener removed
+
+        // Pillars Modal Event Listeners
+        modalKalmaBtn.addEventListener('click', () => { renderKalmaPillarContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('pillars-tab'); });
+        modalNamazBtn.addEventListener('click', () => { renderNamazContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('pillars-tab'); });
+        modalRozaBtn.addEventListener('click', () => { renderRozaContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('pillars-tab'); });
+        modalZakatBtn.addEventListener('click', () => { renderZakatContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('pillars-tab'); });
+        modalHajjBtn.addEventListener('click', () => { renderHajjContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('pillars-tab'); });
+        modalHomeBtnPillars.addEventListener('click', () => { renderHomeContent(); hideModal(pillarsOptionsModal); updateActiveTabStyle('home-tab'); });
+        modalCloseBtnPillars.addEventListener('click', () => hideModal(pillarsOptionsModal));
+        pillarsOptionsModal.addEventListener('click', (event) => { if (event.target === pillarsOptionsModal) hideModal(pillarsOptionsModal); });
+
+        // More Options Modal Event Listeners
+        moreOptionsIcon.addEventListener('click', () => showModal(moreOptionsModal));
+        modalCloseBtnOptions.addEventListener('click', () => hideModal(moreOptionsModal));
+        moreOptionsModal.addEventListener('click', (event) => { if (event.target === moreOptionsModal) hideModal(moreOptionsModal); });
+
+        // Dark Mode toggle event listener removed
+        // Font Size buttons event listeners removed
+        // Language select event listener removed
+        // Kids Mode toggle event listener removed
+        // Feedback button event listener removed
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                if (!pillarsOptionsModal.classList.contains('hidden')) {
+                    hideModal(pillarsOptionsModal);
+                }
+                if (!moreOptionsModal.classList.contains('hidden')) {
+                    hideModal(moreOptionsModal);
+                }
+            }
+        });
+
+        // --- Initial App Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM Content Loaded. Initializing app.");
+
+            // Initial setup for theme and font size removed
+            // Initial setup for kids mode removed
+            
+            // Set language to English directly
+            // Removed localStorage for language
+            
+            renderHomeContent(); // Load Home content by default
+            updateActiveTabStyle('home-tab'); // Set Home tab as active initially
+            islamicDateDisplay.textContent = getIslamicDate(); // Display Islamic date
+            console.log("App initialization complete.");
+        });
+
+        // Service Worker Registration removed
+    </script>
+</body>
+</html>
