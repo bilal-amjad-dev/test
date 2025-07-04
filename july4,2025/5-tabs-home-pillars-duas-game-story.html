@@ -987,20 +987,25 @@
             }
         }
 
-        // New function to render Story content
+        // New function to render Story content with collapsible UI
         function renderStoryContent() {
             showSkeletonUI();
             setTimeout(() => {
-                let storiesHtml = `<div class="p-4 space-y-6">
+                let storiesHtml = `<div class="p-4 space-y-3">
                                     <h2 class="text-2xl font-bold text-gray-800">Islamic Stories</h2>
                                     <p class="text-gray-700">Explore inspiring stories from Islamic history and the lives of Prophets.</p>`;
 
                 islamicStories.forEach(story => {
                     storiesHtml += `
-                        <div class="bg-white rounded-lg shadow-md p-4 dua-card">
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">${story.title}</h3>
-                            <img loading="lazy" src="${story.image}" alt="${story.title}" class="w-full h-48 object-cover rounded-md mb-3">
-                            <p class="text-gray-700">${story.content}</p>
+                        <div class="dua-card rounded-lg shadow-md overflow-hidden">
+                            <button id="story-${story.id}-header" class="dua-header text-gray-800" onclick="toggleDua('story-${story.id}')" aria-expanded="false" aria-controls="story-${story.id}-content">
+                                <span>${story.title}</span>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                            <div id="story-${story.id}-content" class="dua-content space-y-2">
+                                <img loading="lazy" src="${story.image}" alt="${story.title}" class="w-full h-48 object-cover rounded-md mb-3">
+                                <p class="text-gray-700">${story.content}</p>
+                            </div>
                         </div>
                     `;
                 });
